@@ -1,0 +1,44 @@
+---
+
+debug: true
+
+gerrit-url: https://review.openstack.org/changes/?q=%s
+gerrit-query: status:open+age:4week+(label:Verified<=-1,jenkins+OR+label:Code-Review<=-1)+NOT+label:Workflow<=-1+(project:openstack/swift+OR+project:openstack/python-swiftclient+OR+project:openstack/swift-python-agent+OR+project:openstack/swift-bench+OR+project:openstack/swift-specs)+status:open+NOT+label:Code-Review<=-2&o=DETAILED_ACCOUNTS
+sleep: 600
+
+# MySQL settings
+host: localhost
+port: 3306
+database: abandon
+user: root
+password: master
+
+# logging
+log-file: /tmp/abandon.log
+log-level: DEBUG
+
+# Email settings
+email_subject: Swift change %(_number)s abandon alert
+email_from: matt@oliver.net.au
+email_template: |
+  Hi %(name)s,
+
+  Thanks for your change submission to the Openstack Swift project. Unfortuantly your change (%(_number)s) has a negitive score and was last updated on %(updated)s.
+
+  As such, your change has turned up on our radar as a possilby abandoned change.
+  To remove your change from the possibly abandoned list could you please do one or more of the following:
+
+    - Add a comment stating that you are still working on the change.
+    - Address any comments made so the change can progress.
+    - Rebase your change (if required).
+
+  Any of the above will mark the change updated and remove it from our list. If nothing is done in 2 weeks from the date of this email, this change will be considered abandoned.
+
+  If the change is abandoned then you can ignore this email and leave the change untouched.
+
+  Thanks again for you work and time, it is greatly appreciated.
+
+  Regards,
+  SWift team.
+
+  Change: https://review.openstack.org/#/c/%(_number)s/

@@ -23,9 +23,9 @@ email_from: matt@oliver.net.au
 email_template: |
   Hi %(name)s,
 
-  Thanks for your change submission to the Openstack Swift project. Unfortuantly your change (%(_number)s) has a negitive score and was last updated on %(updated)s.
+  Thanks for your change submission to the Openstack Swift project. Unfortunately your change (%(_number)s) has a negative score and was last updated on %(updated)s.
 
-  As such, your change has turned up on our radar as a possilby abandoned change.
+  As such, your change has turned up on our radar as a possibly abandoned change.
   To remove your change from the possibly abandoned list could you please do one or more of the following:
 
     - Add a comment stating that you are still working on the change.
@@ -39,6 +39,7 @@ email_template: |
   Thanks again for you work and time, it is greatly appreciated.
 
   Regards,
-  SWift team.
+  Swift team.
 
   Change: https://review.openstack.org/#/c/%(_number)s/
+

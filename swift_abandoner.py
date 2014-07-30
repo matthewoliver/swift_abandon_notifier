@@ -186,7 +186,7 @@ class Abandon():
 
     def _setup_logger(self):
         log_file = self.config.get('log-file',
-                                   '/var/log/abandon/abandon.log')
+                                   '/var/log/abandoner/abandon.log')
         log_level = self.config.get('log-level', 'DEBUG')
         logging.basicConfig(format='%(asctime)s %(name)-32s '
                             '%(levelname)-8s %(message)s',
@@ -211,7 +211,7 @@ class Abandon():
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config',
-                        default='/etc/abandon/config.yaml',
+                        default='/etc/abandoner/config.yaml',
                         help='Path to yaml config file.')
     args = parser.parse_args()
     config = {}

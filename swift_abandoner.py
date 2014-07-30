@@ -15,10 +15,6 @@ from email.MIMEText import MIMEText
 from email.Utils import COMMASPACE, formatdate
 from email import Encoders
 
-DB_DIRECTORY = "/tmp/swift_abandon_db_data/"
-LOG_FILE = DB_DIRECTORY + "/swift_abandon.log"
-DB_FILENAME = "abandon_data"
-
 DEBUG = True
 
 SQL_INSERT_CHANGE = """INSERT INTO changes (
@@ -66,7 +62,8 @@ def send_email(send_from, send_to, subject, text, files=[], server="localhost"):
         part = MIMEBase('application', "octet-stream")
         part.set_payload(open(f, "rb").read())
         Encoders.encode_base64(part)
-        part.add_header('Content-Disposition', 'attachment; filename="%s"' % os.path.basename(f))
+        part.add_header('Content-Disposition', 'attachment; filename="%s"' %
+                        os.path.basename(f))
         msg.attach(part)
 
     smtp = smtplib.SMTP(server)
@@ -188,24 +185,13 @@ class Abandon():
         pass
 
     def _setup_logger(self):
-        log_file = self.config.get('log-file', '/tmp/abandon.log')
+        log_file = self.config.get('log-file',
+                                   '/var/log/abandon/abandon.log')
         log_level = self.config.get('log-level', 'DEBUG')
         logging.basicConfig(format='%(asctime)s %(name)-32s '
                             '%(levelname)-8s %(message)s',
                             filename=log_file,
                             level=getattr(logging, log_level))
-
-    def import_data(self):
-        """ Data will be in the form of:
-        {change: date_found}
-        """
-        try:
-            with open(os.path.join(DB_DIRECTORY, DB_FILENAME)) as json_stream:
-                data = json.load(json_stream)
-        except:
-            self.log.warn("Database file not found, not importing old data")
-            data = {}
-        return data
 
     def _get_current_data(self):
         try:
@@ -225,8 +211,7 @@ class Abandon():
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-c', '--config',
-                        default=
-                        '/home/matt/programming/junk/swift_abandon/config.yaml',
+                        default='/etc/abandon/config.yaml',
                         help='Path to yaml config file.')
     args = parser.parse_args()
     config = {}

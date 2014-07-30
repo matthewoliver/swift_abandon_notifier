@@ -116,8 +116,11 @@ class Abandon():
             msg = self.config[EMAIL_TEMPLATE] % change
             to = "matt+abandon@oliver.net.au"
             send_email(self.config[EMAIL_FROM], to, subject, msg)
+            self.log.info("Sent nofitication for change %(_number)s" % change)
             sent = 1
         except:
+            self.log.info("Failed to send nofitication for change %(_number)s"
+                          % change)
             sent = 0
 
         # Insert the notificaiton record
@@ -140,6 +143,7 @@ class Abandon():
     def _delete_changes(self, change_numbers):
         cur = self.conn.cursor()
         for change in change_numbers:
+            self.log.info("Deleting change %d" % change)
             cur.execute("UPDATE changes SET deleted = 1, deleted_at = NOW() "
                         "WHERE deleted = 0 AND `number` = %s", change)
             self.conn.commit()
@@ -153,6 +157,7 @@ class Abandon():
                     change[CH_UPDATED].split('.')[0], change.get(CH_NAME, ''),
                     change.get(CH_USERNAME, ''), change[CH_EMAIL]))
         self.conn.commit()
+        self.log.info("Added change %(_number)s" % change)
 
     def _get_existing_change_numbers(self):
         cur = self.conn.cursor()
@@ -162,6 +167,7 @@ class Abandon():
         return [row[0] for row in res]
 
     def run_once(self):
+        self.log.info("Starting run")
         current_changes = self._get_current_data()
         existing_changes = self._get_existing_change_numbers()
 
@@ -177,12 +183,7 @@ class Abandon():
 
         # check and (re)send notifications
         self._process_notifications()
-
-    def send_email(self):
-        pass
-
-    def process_change(self, change):
-        pass
+        self.log.info("Finished run")
 
     def _setup_logger(self):
         log_file = self.config.get('log-file',
@@ -195,6 +196,7 @@ class Abandon():
 
     def _get_current_data(self):
         try:
+            self.log.info("Querying gerrit")
             session = requests.Session()
             resp = session.get(self.config['gerrit-url'] %
                                self.config['gerrit-query'],

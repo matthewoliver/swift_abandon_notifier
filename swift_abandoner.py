@@ -183,8 +183,9 @@ class Abandon():
 
         # Insert the notificaiton record
         cur = self.conn.cursor()
-        cur.execute("INSERT INTO notifications (email, sent, date_sent)"
-                    " VALUES (%s, %s, NOW())", (change[CH_EMAIL], str(sent)))
+        cur.execute("INSERT INTO notifications (email, sent, date_sent, "
+                    "change_id) VALUES (%s, %s, NOW()), %s",
+                    (change[CH_EMAIL], str(sent), change[DB_ID]))
         self.conn.commit()
 
     def _process_notifications(self):

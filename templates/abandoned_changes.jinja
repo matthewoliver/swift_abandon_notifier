@@ -7,7 +7,7 @@
 The following changes have been abandoned:
 <ul>
 {% for change in changes %}
-<li><a href="https://review.openstack.org/#/c/{{ change["_number"] }}">{{ change["_number"] }}</a></li>
+<li><a href="https://review.openstack.org/#/c/{{ change["_number"] }}">{{ change["_number"] }}</a> {{ change["subject"] }}</li>
 {% endfor %} 
 </ul>
 <b>Note:</b> Calculated by {{ days }} since notification sent.

@@ -17,7 +17,7 @@ user: root
 password: master
 
 # logging
-log-file: /tmp/abandon.log
+log-file: /var/log/abandoner/abandon.log
 log-level: DEBUG
 
 # HTML output

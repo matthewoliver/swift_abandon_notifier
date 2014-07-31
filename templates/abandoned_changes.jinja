@@ -1,0 +1,14 @@
+<html>
+<head>
+<title>Swift abandoned changes</title>
+</head>
+<body>
+<h1>Abandoned swift changes</h1><hr />
+The following changes have been abandoned:
+<ul>
+{% for change in changes %}
+<li><a href="https://review.openstack.org/#/c/{{ change["_number"] }}">{{ change["_number"] }}</a></li>
+{% endfor %} 
+</ul>
+</body>
+</html>

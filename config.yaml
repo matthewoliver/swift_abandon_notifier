@@ -6,6 +6,9 @@ gerrit-url: https://review.openstack.org/changes/?q=%s
 gerrit-query: status:open+age:4week+(label:Verified<=-1,jenkins+OR+label:Code-Review<=-1)+NOT+label:Workflow<=-1+(project:openstack/swift+OR+project:openstack/python-swiftclient+OR+project:openstack/swift-python-agent+OR+project:openstack/swift-bench+OR+project:openstack/swift-specs)+status:open+NOT+label:Code-Review<=-2&o=DETAILED_ACCOUNTS
 sleep: 600
 
+# abandoned_days is how long to wait after a notification before we mark the change as abandoned.
+abandoned_days: 14
+
 # MySQL settings
 host: localhost
 port: 3306
@@ -17,29 +20,33 @@ password: master
 log-file: /tmp/abandon.log
 log-level: DEBUG
 
+# HTML output
+template_directory: /etc/abandoner/templates/
+template: abandoned_changes.jinja
+html_filename: /var/www/abandoned_changes.html
+
 # Email settings
 email_subject: Swift change %(_number)s abandon alert
 email_from: matt@oliver.net.au
 email_template: |
   Hi %(name)s,
+  
+  Thanks for your change submission to the Openstack Swift project. Unfortunatly your change https://review.openstack.org/#/c/%(_number)s/ has a negative score and was last updated on %(updated)s. We're worried that you've abandoned the patch, and we want to make sure that it gets the attention it needs.
 
-  Thanks for your change submission to the Openstack Swift project. Unfortunately your change (%(_number)s) has a negative score and was last updated on %(updated)s.
-
-  As such, your change has turned up on our radar as a possibly abandoned change.
   To remove your change from the possibly abandoned list could you please do one or more of the following:
-
+  
     - Add a comment stating that you are still working on the change.
     - Address any comments made so the change can progress.
     - Rebase your change (if required).
-
+  
   Any of the above will mark the change updated and remove it from our list. If nothing is done in 2 weeks from the date of this email, this change will be considered abandoned.
 
   If the change is abandoned then you can ignore this email and leave the change untouched.
+  
+  If you need any help, the Swift team are available and happy to help out. We can be contacted via IRC or mailing list. See https://wiki.openstack.org/IRC and https://wiki.openstack.org/wiki/MailingLists#Future_Development for further details.
+                          
 
-  Thanks again for you work and time, it is greatly appreciated.
+  Thanks again for your work and time; it is greatly appreciated.
 
   Regards,
   Swift team.
-
-  Change: https://review.openstack.org/#/c/%(_number)s/
-

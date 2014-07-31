@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 import argparse
+import datetime
+import jinja2
 import json
 import logging
 import MySQLdb as mdb
@@ -41,6 +43,11 @@ DB_DELETED = "deleted"
 EMAIL_TEMPLATE = "email_template"
 EMAIL_SUBJECT = "email_subject"
 EMAIL_FROM = "email_from"
+
+CONF_TEMPLATE_DIR = "template_direcotry"
+CONF_TEMPLATE = "template"
+CONF_HTML_FILE = "html_filename"
+CONF_ABANDONED_DAYS = "abandoned_days"
 
 
 def send_email(send_from, send_to, subject, text, files=[], server="localhost"):
@@ -90,10 +97,56 @@ class Abandon():
             self.log.error("Failed to connect to mysql")
             raise ex
 
-    def _get_existing_changes(self):
+    def _generate_html(self, changes):
+        html_file = self.config.get(CONF_HTML_FILE,
+                                    '/var/www/abandoned_changes.html')
+        html_exists = os.path.exists(html_file)
+        if html_exists:
+            self.log.info("Regenerating abandon HMTL: %s", html_file)
+        else:
+            self.log.info("Generating abandon HMTL: %s", html_file)
+
+        searchpath = self.config.get(CONF_TEMPLATE_DIR,
+                                     "/etc/abandoner/templates")
+        templateLoader = jinja2.FileSystemLoader(searchpath=searchpath)
+        templateEnv = jinja2.Environment(loader=templateLoader)
+        template_file = self.config.get(CONF_TEMPLATE,
+                                        "abandoned_changes.jinja")
+        template = templateEnv.get_template(template_file)
+        template_vars = {"changes": changes}
+        output_text = template.render(template_vars)
+
+        with open(html_file, "w") as html_stream:
+            html_stream.write(output_text)
+
+        if html_exists:
+            self.log.info("Abandon HTML regeneration complete.")
+        else:
+            self.log.info("Abandon HTML generation complete.")
+
+    def _process_abandoned_changes(self):
+        # get the date of CONF_ABANDONED_DAY ago.
+        abandon_days = self.config.get(CONF_ABANDONED_DAYS, 14)
+        date_delta = datetime.timedelta(days=abandon_days)
+        abandon_date = datetime.datetime.now() - date_delta
+
+        sql = "SELECT * from changes c, notifications n "
+        sql += "WHERE n.change_id = c.id AND c.deleted = 0 AND "
+        sql += "n.sent = 1 AND date_sent <= %s"
+        changes = self._get_changes(sql, (abandon_date))
+
+        html_file = self.config.get(CONF_HTML_FILE,
+                                    '/var/www/abandoned_changes.html')
+        if changes or not os.path.exists(html_file):
+            self._generate_html(changes)
+
+    def _get_changes(self, sql, variables=()):
         results = []
         cur = self.conn.cursor(mdb.cursors.DictCursor)
-        cur.execute("SELECT * from changes WHERE deleted = 0")
+        if len(variables) > 0:
+            cur.execute(sql, variables)
+        else:
+            cur.execute(sql)
         rows = cur.fetchall()
         for row in rows:
             results.append({
@@ -108,6 +161,10 @@ class Abandon():
                 CH_EMAIL: row[DB_EMAIL],
                 DB_ID: row[DB_ID]})
         return results
+
+    def _get_existing_changes(self):
+        sql = "SELECT * from changes WHERE deleted = 0"
+        return self._get_changes(sql)
 
     def _send_notification(self, change):
         sent = 0
@@ -183,6 +240,8 @@ class Abandon():
 
         # check and (re)send notifications
         self._process_notifications()
+
+        self._process_abandoned_changes()
         self.log.info("Finished run")
 
     def _setup_logger(self):

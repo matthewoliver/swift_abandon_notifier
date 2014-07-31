@@ -113,7 +113,8 @@ class Abandon():
         template_file = self.config.get(CONF_TEMPLATE,
                                         "abandoned_changes.jinja")
         template = templateEnv.get_template(template_file)
-        template_vars = {"changes": changes}
+        days = self.config.get(CONF_ABANDONED_DAYS, 14)
+        template_vars = {"changes": changes, "days": days}
         output_text = template.render(template_vars)
 
         with open(html_file, "w") as html_stream:

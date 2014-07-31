@@ -133,7 +133,7 @@ class Abandon():
         sql = "SELECT * from changes c, notifications n "
         sql += "WHERE n.change_id = c.id AND c.deleted = 0 AND "
         sql += "n.sent = 1 AND date_sent <= %s"
-        changes = self._get_changes(sql, (abandon_date))
+        changes = self._get_changes(sql, (abandon_date,))
 
         html_file = self.config.get(CONF_HTML_FILE,
                                     '/var/www/abandoned_changes.html')
@@ -143,7 +143,7 @@ class Abandon():
     def _get_changes(self, sql, variables=()):
         results = []
         cur = self.conn.cursor(mdb.cursors.DictCursor)
-        if len(variables) > 0:
+        if variables:
             cur.execute(sql, variables)
         else:
             cur.execute(sql)

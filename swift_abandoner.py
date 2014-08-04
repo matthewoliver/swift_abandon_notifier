@@ -204,7 +204,7 @@ class Abandon():
         for change in change_numbers:
             self.log.info("Deleting change %d" % change)
             cur.execute("UPDATE changes SET deleted = 1, deleted_at = NOW() "
-                        "WHERE deleted = 0 AND `number` = %s", change)
+                        "WHERE deleted = 0 AND `number` = %s", (change,))
             self.conn.commit()
 
     def _add_change(self, change):

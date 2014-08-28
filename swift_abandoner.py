@@ -219,6 +219,13 @@ class Abandon():
     def _add_change(self, change):
         cur = self.conn.cursor()
         change.update(change['owner'])
+        if CH_EMAIL not in change:
+            # No email address, this seems to happen when the change is
+            # raised from the 'OpenStack Proposal Bot'. So I'll use the
+            # donotreply email address here as the email will automatically
+            # be deleted, but the people BCC'd will still get the notification
+            # email.
+            change[CH_EMAIL] = self.config[EMAIL_FROM]
         cur.execute(SQL_INSERT_CHANGE, (change[CH_NUMBER], change[CH_MERGEABLE],
                     change[CH_BRANCH], change[CH_SUBJECT],
                     change[CH_CREATED].split('.')[0],

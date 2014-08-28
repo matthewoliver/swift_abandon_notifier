@@ -43,6 +43,7 @@ DB_DELETED = "deleted"
 EMAIL_TEMPLATE = "email_template"
 EMAIL_SUBJECT = "email_subject"
 EMAIL_FROM = "email_from"
+EMAIL_CC = "email_cc"
 EMAIL_BCC = "email_bcc"
 
 CONF_TEMPLATE_DIR = "template_direcotry"
@@ -52,21 +53,33 @@ CONF_ABANDONED_DAYS = "abandoned_days"
 
 
 def send_email(send_from, send_to, subject, text, files=[],
-               server="localhost", bcc=[]):
+               server="localhost", cc=[], bcc=[]):
     if not isinstance(send_to, list):
         send_to = [send_to]
 
-    if not isinstance(files, list):
-        files = [files]
+    if files:
+        if not isinstance(files, list):
+            files = [files]
 
-    if not isinstance(bcc, list):
-        bcc = [bcc]
+    if cc:
+        if not isinstance(cc, list):
+            cc = [cc]
+
+    if bcc:
+        if not isinstance(bcc, list):
+            bcc = [bcc]
 
     msg = MIMEMultipart()
     msg['From'] = send_from
     msg['To'] = COMMASPACE.join(send_to)
+
+    if cc:
+        msg['Cc'] = COMMASPACE.join(cc)
+        send_to += cc
+
     msg['Date'] = formatdate(localtime=True)
     msg['Subject'] = subject
+
 
     msg.attach(MIMEText(text))
 
@@ -181,8 +194,10 @@ class Abandon():
             subject = self.config[EMAIL_SUBJECT] % change
             msg = self.config[EMAIL_TEMPLATE] % change
             to = change[CH_EMAIL]
+            cc = self.config.get(EMAIL_CC, [])
             bcc = self.config.get(EMAIL_BCC, [])
-            send_email(self.config[EMAIL_FROM], to, subject, msg, bcc=bcc)
+            send_email(self.config[EMAIL_FROM], to, subject,
+                       msg, cc=cc, bcc=bcc)
             self.log.info("Sent nofitication for change %(_number)s" % change)
             sent = 1
         except:

@@ -27,7 +27,7 @@ html_filename: /var/www/abandoned_changes.html
 
 # Email settings
 email_subject: Swift change %(_number)s abandon alert
-email_from: matt@oliver.net.au
+email_from: donotreply@oliver.net.au
 email_template: |
   Hi %(name)s,
   

@@ -10,4 +10,4 @@ The criteria is:
 
 It then processes the results and stores them in a MySQL database. If it hasn't notified the owner and email is sent, this notification is then also stored, allowing statisical analysis.
 
-There will be another part of this script (probably a simple php file) which will connect to the database and list patches it has determined are ready to be abanonded. It depermines this by the change still being found in the gerrit query 2 weeks after the notification has been sent.
+The script then will generate a HTML page with a list of changes that are considered abandoned, this is done by doing a query on the database to see which changes still exist and its been X days since a successful notification was sent. Where X is configurable in the config file.

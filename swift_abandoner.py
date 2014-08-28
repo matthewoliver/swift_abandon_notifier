@@ -172,7 +172,7 @@ class Abandon():
         try:
             subject = self.config[EMAIL_SUBJECT] % change
             msg = self.config[EMAIL_TEMPLATE] % change
-            to = "matt+abandon@oliver.net.au"
+            to = change[CH_EMAIL]
             send_email(self.config[EMAIL_FROM], to, subject, msg)
             self.log.info("Sent nofitication for change %(_number)s" % change)
             sent = 1

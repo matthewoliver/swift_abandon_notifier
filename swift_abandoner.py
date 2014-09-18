@@ -277,7 +277,7 @@ class Abandon():
                 existing_changes.remove(change[CH_NUMBER])
             else:
                 # This is a new change so add it
-                if not self._is_whitelisted(change)
+                if not self._is_whitelisted(change):
                     self._add_change(change)
 
         # Any change numbers left in existing_changes can be deleted

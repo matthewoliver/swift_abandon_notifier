@@ -166,9 +166,9 @@ class Abandon():
         if self.whitelist:
             for item in self.whitelist:
                 if item:
-                    k, v = item.iteritems()
+                    k, v = item.items()[0]
                     if change[k] == v:
-                        True
+                        return True
         return False
 
     def _get_changes(self, sql, variables=()):

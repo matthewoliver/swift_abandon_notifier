@@ -80,7 +80,6 @@ def send_email(send_from, send_to, subject, text, files=[],
     msg['Date'] = formatdate(localtime=True)
     msg['Subject'] = subject
 
-
     msg.attach(MIMEText(text))
 
     if bcc:
@@ -104,7 +103,7 @@ class AbandonException(Exception):
 
 
 class Abandon():
-    def __init__(self, config, whitelist = None):
+    def __init__(self, config, whitelist=None):
         self.config = config
         self.whitelist = whitelist
         self.log = logging.getLogger("Swfit.change.abandoner")
@@ -163,6 +162,15 @@ class Abandon():
         if changes or not os.path.exists(html_file):
             self._generate_html(changes)
 
+    def _is_whitelisted(self, change):
+        if self.whitelist:
+            for item in self.whitelist:
+                if item:
+                    k, v = item.popitem()
+                    if change[k] == v:
+                        True
+        return False
+
     def _get_changes(self, sql, variables=()):
         results = []
         cur = self.conn.cursor(mdb.cursors.DictCursor)
@@ -172,11 +180,8 @@ class Abandon():
             cur.execute(sql)
         rows = cur.fetchall()
         for row in rows:
-            if self.whitelist:
-                for item in self.whitelist:
-                    k, v = item.popitem()
-                    if row[k] == v:
-                        continue
+            if self._is_whitelisted(row):
+                continue
             results.append({
                 CH_NUMBER: row[DB_NUMBER],
                 CH_MERGEABLE: row[DB_MERGEABLE],
@@ -272,7 +277,8 @@ class Abandon():
                 existing_changes.remove(change[CH_NUMBER])
             else:
                 # This is a new change so add it
-                self._add_change(change)
+                if not self._is_whitelisted(change)
+                    self._add_change(change)
 
         # Any change numbers left in existing_changes can be deleted
         self._delete_changes(existing_changes)

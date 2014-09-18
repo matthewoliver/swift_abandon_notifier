@@ -166,7 +166,7 @@ class Abandon():
         if self.whitelist:
             for item in self.whitelist:
                 if item:
-                    k, v = item.popitem()
+                    k, v = item.iteritems()
                     if change[k] == v:
                         True
         return False

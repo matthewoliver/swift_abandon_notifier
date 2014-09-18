@@ -104,8 +104,9 @@ class AbandonException(Exception):
 
 
 class Abandon():
-    def __init__(self, config):
+    def __init__(self, config, whitelist = None):
         self.config = config
+        self.whitelist = whitelist
         self.log = logging.getLogger("Swfit.change.abandoner")
         self._setup_logger()
         try:
@@ -171,6 +172,10 @@ class Abandon():
             cur.execute(sql)
         rows = cur.fetchall()
         for row in rows:
+            if self.whitelist:
+                for key, item in self.whitelist.iteritems():
+                    if row[key] == item:
+                        continue
             results.append({
                 CH_NUMBER: row[DB_NUMBER],
                 CH_MERGEABLE: row[DB_MERGEABLE],
@@ -307,11 +312,19 @@ def main():
     parser.add_argument('-c', '--config',
                         default='/etc/abandoner/config.yaml',
                         help='Path to yaml config file.')
+    parser.add_argument('-w', '--whitelist',
+                        default='/etc/abandoner/whitelist.yaml',
+                        help='Path to yaml whitelist file.')
     args = parser.parse_args()
     config = {}
     with open(args.config) as config_stream:
         config = yaml.load(config_stream)
-    abandon = Abandon(config)
+
+    whitelist = None
+    if os.path.exists(args.whitelist):
+        with open(args.whitelist) as whitelist_stream:
+            whitelist = yaml.load(whitelist_stream)
+    abandon = Abandon(config, whitelist)
     abandon.run_once()
 
 if __name__ == "__main__":

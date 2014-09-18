@@ -173,8 +173,9 @@ class Abandon():
         rows = cur.fetchall()
         for row in rows:
             if self.whitelist:
-                for key, item in self.whitelist.iteritems():
-                    if row[key] == item:
+                for item in self.whitelist:
+                    k, v = item.popitem()
+                    if row[k] == v:
                         continue
             results.append({
                 CH_NUMBER: row[DB_NUMBER],

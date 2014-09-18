@@ -159,8 +159,8 @@ class Abandon():
 
         html_file = self.config.get(CONF_HTML_FILE,
                                     '/var/www/abandoned_changes.html')
-        if changes or not os.path.exists(html_file):
-            self._generate_html(changes)
+        #if changes or not os.path.exists(html_file):
+        self._generate_html(changes)
 
     def _is_whitelisted(self, change):
         if self.whitelist:

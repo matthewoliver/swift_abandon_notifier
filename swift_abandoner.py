@@ -180,6 +180,7 @@ class Abandon():
             cur.execute(sql)
         rows = cur.fetchall()
         for row in rows:
+            row[CH_NUMBER] = row[DB_NUMBER]
             if self._is_whitelisted(row):
                 continue
             results.append({
